@@ -1,0 +1,12 @@
+[package]
+name = "shapes-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+srdf = { git = "https://github.com/weso/shapes-rs.git", branch = "issue22" }
+shacl_ast = { git = "https://github.com/weso/shapes-rs.git", branch = "issue22" }
+shacl_validation = { git = "https://github.com/weso/shapes-rs.git", branch = "issue22" }
+clap = { version = "4.2.1", features = ["derive"] }
+oxigraph = "0.3.22"
+memory-stats = "1.2.0"
