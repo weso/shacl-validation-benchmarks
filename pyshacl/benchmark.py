@@ -1,21 +1,43 @@
 # -*- coding: utf-8 -*-
-import rdflib
-import pyshacl
+from pyshacl import validate, monkey
+from rdflib import Graph
+import time
 from os import path
 
-target_ttl_file = \
-    '../test/resources/dash_tests/core/complex/personexample.test.ttl'
-target_ttl_file = path.abspath(target_ttl_file)
-target_graph = rdflib.Graph("Memory")
-with open(target_ttl_file, 'rb') as file:
-    target_graph.parse(file=file, format='turtle')
+def load_graph(data):
+    monkey.apply_patches()
+    target_ttl_file = path.abspath(data)
+    target_graph = Graph()
+    with open(target_ttl_file, 'rb') as file:
+        target_graph.parse(file=file, format='turtle')
+    return target_graph
+    
+def main(data, shapes, iters):
+    g  = load_graph(data)
+    s = load_graph(shapes)
 
-pyshacl.validate(target_graph, inference='none')
+    times = []
+    for _ in range(iters):
+        start = time.time()
+        validate(
+            g,
+            shacl_graph=s,
+            data_graph_format='turtle',
+            shacl_graph_format='turtle',
+            inference='none'
+        )
+        end = time.time()
+        times.append(end - start)
+
+    print(times)
 
 if __name__ == '__main__':
     import argparse
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('--workspace', metavar='path', required=True, help='the path to workspace')
-    parser.add_argument('--schema', metavar='path', required=True, help='path to schema')
+    parser.add_argument('--data', metavar='path', default='../data/1-lubm.ttl', help='the path to workspace')
+    parser.add_argument('--shapes', metavar='path', default='../data/lubm.ttl', help='path to shape')
+    parser.add_argument('--iters', default=1, help='number of iterations')
     args = parser.parse_args()
-    main(workspace=args.workspace, schema=args.schema, dem=args.dem)
+
+    main(args.data, args.shapes, args.iters)
