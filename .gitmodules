@@ -1,0 +1,3 @@
+[submodule "shaclex/shaclex"]
+	path = shaclex/shaclex
+	url = https://github.com/weso/shaclex
