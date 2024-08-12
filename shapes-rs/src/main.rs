@@ -8,6 +8,7 @@ use oxigraph::model::GraphNameRef;
 use oxigraph::store::Store;
 use shacl_ast::Schema;
 use shacl_ast::ShaclParser;
+use shacl_validation::store::graph::Graph;
 use shacl_validation::validate::validate;
 use srdf::{RDFFormat, SRDFGraph};
 
@@ -44,63 +45,18 @@ struct Cli {
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
-    let benchmark = BenchmarkUtil::new(cli.data, cli.shapes);
-    let store = benchmark.load_graph()?;
-    let schema = benchmark.load_shapes()?;
+    let data = Path::new(&cli.data);
+    let shapes = Path::new(&cli.shapes);
+    let validator = GraphValidator::new(data, GraphFormat::Turtle);
 
     let mut times = Vec::new();
     for _ in 0..cli.iterations {
         let before = Instant::now();
-        let _ = validate(&store, schema.clone());
+        let _ = validator.validate(shapes, GraphFormat::Turtle);
         times.push(before.elapsed());
     }
 
     println!("{:?}", times);
 
     Ok(())
-}
-
-pub struct BenchmarkUtil {
-    data: String,
-    shapes: String,
-}
-
-impl BenchmarkUtil {
-    fn new(data: String, shapes: String) -> Self {
-        BenchmarkUtil { data, shapes }
-    }
-
-    fn load_graph(&self) -> Result<Store> {
-        let data_store = match Store::new() {
-            Ok(data_store) => data_store,
-            Err(_) => return Err("Error creating the store"),
-        };
-        let file = match File::open(self.data.to_owned()) {
-            Ok(file) => file,
-            Err(_) => return Err("Error opening the given file"),
-        };
-        match data_store.bulk_loader().load_graph(
-            BufReader::new(file),
-            GraphFormat::Turtle,
-            GraphNameRef::DefaultGraph,
-            None,
-        ) {
-            Ok(_) => Ok(data_store),
-            Err(_) => Err("Error loading the graph"),
-        }
-    }
-
-    fn load_shapes(&self) -> Result<Schema> {
-        let rdf = match SRDFGraph::from_path(Path::new(&self.shapes), &RDFFormat::Turtle, None) {
-            Ok(rdf) => rdf,
-            Err(_) => return Err("Error parsing the RDF data from provided path"),
-        };
-
-        let schema = match ShaclParser::new(rdf).parse() {
-            Ok(shapes_graph) => shapes_graph,
-            Err(_) => return Err("Error parsing the Shapes"),
-        };
-
-        Ok(schema)
-    }
 }
