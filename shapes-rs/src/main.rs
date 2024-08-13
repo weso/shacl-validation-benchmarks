@@ -9,6 +9,9 @@ use statistical::{mean, standard_deviation};
 
 type Result<T> = std::result::Result<T, &'static str>;
 
+#[global_allocator]
+static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
+
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Cli {

@@ -2,11 +2,24 @@
 @prefix sh:     <http://www.w3.org/ns/shacl#> .
 @prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
         
-ub:Professor
+ub:FullProfessorShape
 	a sh:NodeShape ;
 	sh:targetClass ub:FullProfessor ;
-	sh:property [
-		sh:path ub:name ;
-		sh:minCount 1 ;
-		sh:maxCount 1 ;
-	] .
+	sh:property [ # Blank node 1
+		sh:path     ub:name ;
+		sh:minCount 1;
+		sh:maxCount 1;
+		sh:datatype xsd:string ;
+	] ;
+	sh:property [ # Blank node 2
+		sh:path 	ub:publicationAuthor  ;
+		sh:minCount 15;
+		sh:maxCount 20;
+		sh:nodeKind sh:IRI ;
+	] ;
+	sh:property [ # Blank node 3  
+		sh:path     ub:headOf ;
+		sh:minCount 0;
+		sh:maxCount 1;
+		sh:nodeKind sh:IRI ;
+	] ;
