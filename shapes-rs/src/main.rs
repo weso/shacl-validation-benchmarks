@@ -2,8 +2,10 @@ use std::path::Path;
 use std::time::Instant;
 
 use clap::Parser;
+use csv::Writer;
 use shacl_validation::validate::{GraphValidator, Mode, Validator};
 use srdf::RDFFormat;
+use statistical::{mean, standard_deviation};
 
 type Result<T> = std::result::Result<T, &'static str>;
 
@@ -41,9 +43,10 @@ struct Cli {
 fn main() -> Result<()> {
     let cli = Cli::parse();
     let shapes = Path::new(&cli.shapes);
-    let mut times = Vec::new();
+    let mut ans = Vec::new();
 
     for data in &cli.data {
+        let mut times = Vec::new();
         let data = Path::new(data);
 
         let validator = match GraphValidator::new(data, RDFFormat::Turtle, None, Mode::Default) {
@@ -55,10 +58,32 @@ fn main() -> Result<()> {
         for _ in 0..cli.iterations {
             let before = Instant::now();
             let _ = validator.validate(shapes, RDFFormat::Turtle);
-            times.push(before.elapsed());
+            times.push(before.elapsed().as_nanos() as f64);
         }
 
-        println!("{:?}", times);
+        let average = mean(&times);
+        let std = standard_deviation(&times, None);
+
+        ans.push([
+            average.to_string(),
+            std.to_string(),
+            data.to_str()
+                .unwrap()
+                .replace("../data/", "")
+                .replace(".ttl", ""),
+            "shapes-rs".to_string(),
+        ])
+    }
+
+    let writer_result =
+        Writer::from_path("/home/angel/shacl-validation-benchmark/results/shapesrs.csv");
+    let mut writer = match writer_result {
+        Ok(writer) => writer,
+        Err(_) => return Err("Error creating the Writer"),
+    };
+
+    for e in ans {
+        let _ = writer.write_record(e);
     }
 
     Ok(())

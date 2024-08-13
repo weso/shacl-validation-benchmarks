@@ -28,6 +28,11 @@
       <type>pom</type>
       <version>4.8.0</version>
     </dependency>
+      <dependency>
+        <groupId>com.opencsv</groupId>
+        <artifactId>opencsv</artifactId>
+        <version>5.3</version>
+    </dependency>
   </dependencies>
 
   <build>

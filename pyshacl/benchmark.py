@@ -3,6 +3,8 @@ from pyshacl import validate, monkey
 from rdflib import Graph
 import time
 from os import path
+import statistics
+import csv
 
 def load_graph(data):
     monkey.apply_patches()
@@ -14,9 +16,10 @@ def load_graph(data):
     
 def main(data, shapes, iters):
     s = load_graph(shapes)
-    times = []
+    ans = []
 
     for file in data:
+        times = []
         g  = load_graph(file)
 
         validate(
@@ -27,7 +30,7 @@ def main(data, shapes, iters):
             inference='none'
         ) # avoid cold starts
         for _ in range(iters):
-            start = time.time()
+            start = time.time_ns()
             validate(
                 g,
                 shacl_graph=s,
@@ -35,9 +38,19 @@ def main(data, shapes, iters):
                 shacl_graph_format='turtle',
                 inference='none'
             )
-            end = time.time()
+            end = time.time_ns()
             times.append(end - start)
-            print(end - start)
+        
+        ans.append([
+            statistics.mean(times),
+            statistics.stdev(times),
+            file.replace('../data/', '').replace('.ttl', ''),
+            'pyshacl'
+        ])
+
+    with open('/home/angel/shacl-validation-benchmark/results/pyshacl.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerows(ans)
 
 if __name__ == '__main__':
     import argparse
