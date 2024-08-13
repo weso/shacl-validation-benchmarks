@@ -1,0 +1,1 @@
+mvn exec:java -Dexec.mainClass=com.weso.rdf4j.App

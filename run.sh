@@ -12,7 +12,7 @@ if [ -d "$SHAPES_RS_DIR" ]  && [ -d "$PYSHACL_DIR" ] && [ -d "$JENA_DIR" ] && [ 
     cd "$SHAPES_RS_DIR" || exit
 
     # Execute the run.sh script with the parameter
-    sh run.sh $1
+    sh run.sh 10
 
     # Return to the original directory
     cd .. || exit
@@ -21,7 +21,7 @@ if [ -d "$SHAPES_RS_DIR" ]  && [ -d "$PYSHACL_DIR" ] && [ -d "$JENA_DIR" ] && [ 
     cd "$PYSHACL_DIR" || exit
 
     # Execute the run.sh script with the parameter
-    sh run.sh $1
+    sh run.sh 10
 
     # Return to the original directory
     cd .. || exit
