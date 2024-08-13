@@ -10,7 +10,7 @@ if [ -d "$SHAPES_RS_DIR" ]  && [ -d "$PYSHACL_DIR" ] && [ -d "$SHACLEX_DIR" ]; t
     cd "$SHAPES_RS_DIR" || exit
 
     # Execute the run.sh script with the parameter
-    sh run.sh $1 $2 $3
+    sh run.sh $1
 
     # Return to the original directory
     cd .. || exit
@@ -19,7 +19,7 @@ if [ -d "$SHAPES_RS_DIR" ]  && [ -d "$PYSHACL_DIR" ] && [ -d "$SHACLEX_DIR" ]; t
     cd "$PYSHACL_DIR" || exit
 
     # Execute the run.sh script with the parameter
-    sh run.sh $1 $2 $3
+    sh run.sh $1
 
     # Return to the original directory
     cd .. || exit

@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-shacl_validation = { git = "https://github.com/weso/shapes-rs.git" }
+shacl_validation = "0.1.7"
+srdf = "0.1.7"
 clap = { version = "4.2.1", features = ["derive"] }
 memory-stats = "1.2.0"

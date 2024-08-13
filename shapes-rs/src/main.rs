@@ -1,16 +1,9 @@
 use std::path::Path;
 use std::time::Instant;
-use std::{fs::File, io::BufReader};
 
 use clap::Parser;
-use oxigraph::io::GraphFormat;
-use oxigraph::model::GraphNameRef;
-use oxigraph::store::Store;
-use shacl_ast::Schema;
-use shacl_ast::ShaclParser;
-use shacl_validation::store::graph::Graph;
-use shacl_validation::validate::validate;
-use srdf::{RDFFormat, SRDFGraph};
+use shacl_validation::validate::{GraphValidator, Mode, Validator};
+use srdf::RDFFormat;
 
 type Result<T> = std::result::Result<T, &'static str>;
 
@@ -22,9 +15,11 @@ struct Cli {
         short = 'd',
         long = "data",
         value_name = "Data file (.ttl)",
-        default_value = "../data/1-lubm.ttl"
+        num_args = 1..,
+        value_delimiter = ' ',
+        default_value = "../data/10-lubm.ttl"
     )]
-    data: String,
+    data: Vec<String>,
     /// Path to the Schema file
     #[arg(
         short = 's',
@@ -45,18 +40,25 @@ struct Cli {
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
-    let data = Path::new(&cli.data);
     let shapes = Path::new(&cli.shapes);
-    let validator = GraphValidator::new(data, GraphFormat::Turtle);
-
     let mut times = Vec::new();
-    for _ in 0..cli.iterations {
-        let before = Instant::now();
-        let _ = validator.validate(shapes, GraphFormat::Turtle);
-        times.push(before.elapsed());
-    }
 
-    println!("{:?}", times);
+    for data in &cli.data {
+        let data = Path::new(data);
+
+        let validator = match GraphValidator::new(data, RDFFormat::Turtle, None, Mode::Default) {
+            Ok(validator) => validator,
+            Err(_) => return Err("Error creating the Validator"),
+        };
+
+        for _ in 0..cli.iterations {
+            let before = Instant::now();
+            let _ = validator.validate(shapes, RDFFormat::Turtle);
+            times.push(before.elapsed());
+        }
+
+        println!("{:?}", times);
+    }
 
     Ok(())
 }

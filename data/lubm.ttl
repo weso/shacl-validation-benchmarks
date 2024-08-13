@@ -7,5 +7,6 @@ ub:Professor
 	sh:targetClass ub:FullProfessor ;
 	sh:property [
 		sh:path ub:name ;
-		sh:maxLength 10 ;
+		sh:minCount 1 ;
+		sh:maxCount 1 ;
 	] .

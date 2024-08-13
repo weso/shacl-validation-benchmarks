@@ -13,31 +13,31 @@ def load_graph(data):
     return target_graph
     
 def main(data, shapes, iters):
-    g  = load_graph(data)
     s = load_graph(shapes)
-
     times = []
-    for _ in range(iters):
-        start = time.time()
-        validate(
-            g,
-            shacl_graph=s,
-            data_graph_format='turtle',
-            shacl_graph_format='turtle',
-            inference='none'
-        )
-        end = time.time()
-        times.append(end - start)
 
-    print(times)
+    for file in data:
+        g  = load_graph(file)
+        for _ in range(iters):
+            start = time.time()
+            validate(
+                g,
+                shacl_graph=s,
+                data_graph_format='turtle',
+                shacl_graph_format='turtle',
+                inference='none'
+            )
+            end = time.time()
+            times.append(end - start)
+            print(end - start)
 
 if __name__ == '__main__':
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data', metavar='path', default='../data/1-lubm.ttl', help='the path to workspace')
+    parser.add_argument('--data', metavar='path', default='../data/10-lubm.ttl', help='the path to workspace', nargs='+')
     parser.add_argument('--shapes', metavar='path', default='../data/lubm.ttl', help='path to shape')
-    parser.add_argument('--iters', default=1, help='number of iterations')
+    parser.add_argument('--iters', default=1, type=int, help='number of iterations')
     args = parser.parse_args()
 
     main(args.data, args.shapes, args.iters)
