@@ -1,3 +1,6 @@
 [submodule "shaclex/shaclex"]
 	path = shaclex/shaclex
 	url = https://github.com/weso/shaclex
+[submodule "rdf4j/rdf4j"]
+	path = rdf4j/rdf4j
+	url = https://github.com/eclipse-rdf4j/rdf4j.git
