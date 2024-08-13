@@ -1,28 +1,38 @@
 package com.weso.jena;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.jena.graph.Graph;
-import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.shacl.ShaclValidator;
 import org.apache.jena.shacl.Shapes;
-import org.apache.jena.shacl.ValidationReport;
-import org.apache.jena.shacl.lib.ShLib;
 
-public class App 
-{
-    public static void main( String[] args ) {
-        // input stream
+public class App {
+    private static final int[] UNIVERSITIES = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
+	private static final int ITERS = 1;
+    
+    public static void main( String[] args ) {		
+        List<Long> times = new ArrayList<>();
+        
         String SHAPES = "/home/angel/shacl-validation-benchmark/data/lubm.ttl";
-        String DATA = "/home/angel/shacl-validation-benchmark/data/10-lubm.ttl";
-    
         Graph shapesGraph = RDFDataMgr.loadGraph(SHAPES);
-        Graph dataGraph = RDFDataMgr.loadGraph(DATA);
-    
         Shapes shapes = Shapes.parse(shapesGraph);
-    
-        ValidationReport report = ShaclValidator.get().validate(shapes, dataGraph);
-        ShLib.printReport(report);
-        System.out.println();
-        RDFDataMgr.write(System.out, report.getModel(), Lang.TTL);
+
+		for (int university: UNIVERSITIES) {
+			// input stream
+			String DATA = String.format("/home/angel/shacl-validation-benchmark/data/%d-lubm.ttl", university);
+			Graph dataGraph = RDFDataMgr.loadGraph(DATA);
+
+			ShaclValidator.get().validate(shapes, dataGraph); // avoid cold starts
+			for (int i = 0; i < ITERS; i++) {
+				long start = System.currentTimeMillis();
+				ShaclValidator.get().validate(shapes, dataGraph);
+				long finish = System.currentTimeMillis();
+				times.add(finish - start);
+			}
+
+			times.forEach(System.out::println);
+		}
     }
 }

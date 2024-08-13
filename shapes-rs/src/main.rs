@@ -51,6 +51,7 @@ fn main() -> Result<()> {
             Err(_) => return Err("Error creating the Validator"),
         };
 
+        let _ = validator.validate(shapes, RDFFormat::Turtle); // avoid cold starts
         for _ in 0..cli.iterations {
             let before = Instant::now();
             let _ = validator.validate(shapes, RDFFormat::Turtle);

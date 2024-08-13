@@ -18,6 +18,14 @@ def main(data, shapes, iters):
 
     for file in data:
         g  = load_graph(file)
+
+        validate(
+            g,
+            shacl_graph=s,
+            data_graph_format='turtle',
+            shacl_graph_format='turtle',
+            inference='none'
+        ) # avoid cold starts
         for _ in range(iters):
             start = time.time()
             validate(
