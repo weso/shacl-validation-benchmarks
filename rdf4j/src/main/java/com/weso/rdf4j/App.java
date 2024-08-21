@@ -18,8 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class App {
-    // private static final int[] UNIVERSITIES = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
-    private static final int[] UNIVERSITIES = { 100 };
+    private static final int[] UNIVERSITIES = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
+    private static final String SHACL = "/home/angel/shacl-validation-benchmark/data/non-conformant.ttl";
 	private static final int ITERS = 1;
 
     public static void main(String[] args) throws IOException {
@@ -36,7 +36,7 @@ public class App {
         
                 try (SailRepositoryConnection connection = shacSailRepository.getConnection()) {
                     connection.begin();
-                    InputStream shapesFile = new FileInputStream("/home/angel/shacl-validation-benchmark/data/lubm.ttl");
+                    InputStream shapesFile = new FileInputStream(SHACL);
                     connection.add(shapesFile, "", RDFFormat.TURTLE, RDF4J.SHACL_SHAPE_GRAPH);
                 }
         

@@ -16,6 +16,7 @@ import com.opencsv.CSVWriter;
 
 public class App {
 	private static final int[] UNIVERSITIES = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
+	private static final String SHACL = "/home/angel/shacl-validation-benchmark/data/non-conformant.ttl";
 	private static final int ITERS = 10;
 
     public static void main( String[] args ) throws IOException {
@@ -24,7 +25,7 @@ public class App {
 
 		// Load the shapes data model
 		Model shapes = JenaUtil.createMemoryModel();
-		InputStream shapesFile = new FileInputStream("/home/angel/shacl-validation-benchmark/data/lubm.ttl");
+		InputStream shapesFile = new FileInputStream(SHACL);
 		shapes.read( shapesFile, "", FileUtils.langTurtle );
 
 		for (int university: UNIVERSITIES) {

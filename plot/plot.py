@@ -17,7 +17,6 @@ def plot(df):
     # Definir colores para cada software
     colors = {
         'jena': 'blue',
-        # 'pyshacl': 'orange',
         'rdf4j': 'green',
         'shapes-rs': 'red',
         'topquadrant': 'purple'
@@ -52,11 +51,25 @@ def plot(df):
     plt.savefig('benches.png')
 
 if __name__ == '__main__':
-    jena = pd.read_csv('/home/angel/shacl-validation-benchmark/results/jena.csv', header=None, names=['mean', 'error', 'label', 'software'])
-    # pyshacl = pd.read_csv('/home/angel/shacl-validation-benchmark/results/pyshacl.csv', header=None, names=['mean', 'error', 'label', 'software'])
-    rdf4j = pd.read_csv('/home/angel/shacl-validation-benchmark/results/rdf4j.csv', header=None, names=['mean', 'error', 'label', 'software'])
-    shapesrs = pd.read_csv('/home/angel/shacl-validation-benchmark/results/shapesrs.csv', header=None, names=['mean', 'error', 'label', 'software'])
-    topquadrant = pd.read_csv('/home/angel/shacl-validation-benchmark/results/topquadrant.csv', header=None, names=['mean', 'error', 'label', 'software'])
+    jena = pd.read_csv(
+        '/home/angel/shacl-validation-benchmark/results/jena.csv',
+        header=None,
+        names=['mean', 'error', 'label', 'software']
+    )
+    rdf4j = pd.read_csv(
+        '/home/angel/shacl-validation-benchmark/results/rdf4j.csv',
+        header=None,
+        names=['mean', 'error', 'label', 'software']
+    )
+    shapesrs = pd.read_csv(
+        '/home/angel/shacl-validation-benchmark/results/shapesrs.csv',
+        header=None, names=['mean', 'error', 'label', 'software']
+    )
+    topquadrant = pd.read_csv(
+        '/home/angel/shacl-validation-benchmark/results/topquadrant.csv',
+        header=None,
+        names=['mean', 'error', 'label', 'software']
+    )
 
     # Combinar los datasets en un solo DataFrame
     df = pd.concat([jena, rdf4j, shapesrs, topquadrant])
