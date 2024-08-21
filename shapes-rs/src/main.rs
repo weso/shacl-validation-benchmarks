@@ -3,7 +3,10 @@ use std::time::Instant;
 
 use clap::Parser;
 use csv::Writer;
-use shacl_validation::validate::{GraphValidator, Mode, Validator};
+use shacl_validation::{
+    store::ShaclDataManager,
+    validate::{GraphValidator, ShaclValidationMode, Validator},
+};
 use srdf::RDFFormat;
 use statistical::{mean, standard_deviation};
 
@@ -45,22 +48,34 @@ struct Cli {
 
 fn main() -> Result<()> {
     let cli = Cli::parse();
+
     let shapes = Path::new(&cli.shapes);
+    let schema = match ShaclDataManager::load(shapes, RDFFormat::Turtle, None) {
+        Ok(schema) => schema,
+        Err(_) => return Err("Error parsing the SHACL shapes"),
+    };
+
     let mut ans = Vec::new();
 
     for data in &cli.data {
         let mut times = Vec::new();
         let data = Path::new(data);
 
-        let validator = match GraphValidator::new(data, RDFFormat::Turtle, None, Mode::Default) {
+        let validator = match GraphValidator::new(
+            data,
+            RDFFormat::Turtle,
+            None,
+            ShaclValidationMode::Default,
+        ) {
             Ok(validator) => validator,
             Err(_) => return Err("Error creating the Validator"),
         };
 
-        let _ = validator.validate(shapes, RDFFormat::Turtle); // avoid cold starts
+        let _ = validator.validate(schema.clone()); // avoid cold starts
         for _ in 0..cli.iterations {
+            let schema = schema.clone();
             let before = Instant::now();
-            let _ = validator.validate(shapes, RDFFormat::Turtle);
+            let _ = validator.validate(schema);
             times.push(before.elapsed().as_nanos() as f64);
         }
 

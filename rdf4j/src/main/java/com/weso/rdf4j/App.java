@@ -6,64 +6,66 @@ import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.eclipse.rdf4j.sail.shacl.ShaclSail;
+import org.eclipse.rdf4j.sail.shacl.ShaclValidator;
 
 import com.opencsv.CSVWriter;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 public class App {
-    private static final int[] UNIVERSITIES = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
-	private static final int ITERS = 10;
+    // private static final int[] UNIVERSITIES = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
+    private static final int[] UNIVERSITIES = { 100 };
+	private static final int ITERS = 1;
 
     public static void main(String[] args) throws IOException {
         List<Double> times = new ArrayList<>();
         List<String[]> ans = new ArrayList<>();
 
-        ShaclSail shaclSail = new ShaclSail(new MemoryStore());
-        SailRepository sailRepository = new SailRepository(shaclSail);
-        sailRepository.init();
+        for (int university: UNIVERSITIES) {
+            times = new ArrayList<>();
 
-        try (SailRepositoryConnection connection = sailRepository.getConnection()) {
-            connection.begin();
-            InputStream shapesFile = new FileInputStream("/home/angel/shacl-validation-benchmark/data/lubm.ttl");
-            connection.add(shapesFile, "", RDFFormat.TURTLE, RDF4J.SHACL_SHAPE_GRAPH);
-            connection.commit();
-
-            for (int university: UNIVERSITIES) {
-                times = new ArrayList<>();
-                
-                connection.begin();
-                String file = String.format("/home/angel/shacl-validation-benchmark/data/%d-lubm.ttl", university);
-                InputStream graphFile = new FileInputStream(file);
-                connection.add(graphFile, "", RDFFormat.TURTLE);
-                connection.commit(); // avoid cold starts
-
-                for (int i = 0; i < ITERS; i++) {
-                    long start = System.nanoTime();
+            for (int i = 0; i < ITERS; i++) {
+                ShaclSail shaclSail = new ShaclSail(new MemoryStore());
+                SailRepository shacSailRepository = new SailRepository(shaclSail);
+                shacSailRepository.init();
+        
+                try (SailRepositoryConnection connection = shacSailRepository.getConnection()) {
                     connection.begin();
-                    connection.commit();
-                    long finish = System.nanoTime();
-                    times.add((double) (finish - start));
+                    InputStream shapesFile = new FileInputStream("/home/angel/shacl-validation-benchmark/data/lubm.ttl");
+                    connection.add(shapesFile, "", RDFFormat.TURTLE, RDF4J.SHACL_SHAPE_GRAPH);
+                }
+        
+                ShaclSail graphShail = new ShaclSail(new MemoryStore());
+                SailRepository graphSailRepository = new SailRepository(shaclSail);
+                graphSailRepository.init();
+
+                try (SailRepositoryConnection connection = graphSailRepository.getConnection()) {
+                    connection.begin();
+                    String file = String.format("/home/angel/shacl-validation-benchmark/data/%d-lubm.ttl", university);
+                    InputStream graphFile = new FileInputStream(file);
+                    connection.add(graphFile, "", RDFFormat.TURTLE);
                 }
 
-                connection.begin();
-                connection.clear();
-                connection.commit();
-
-                String[] record = { 
-                    String.format("%f", times.stream().mapToDouble(d -> d).average().orElse(0.0)),
-                    String.format("%f", calculateStandardDeviation(times)),
-                    String.format("%d-lubm", university),
-                    "rdf4j"
-                };
-                ans.add(record);
+                long start = System.nanoTime();
+                ShaclValidator.validate(shaclSail, graphShail);
+                long finish = System.nanoTime();
+                times.add((double) (finish - start));
             }
+
+            String[] record = { 
+                String.format("%f", times.stream().mapToDouble(d -> d).average().orElse(0.0)),
+                String.format("%f", calculateStandardDeviation(times)),
+                String.format("%d-lubm", university),
+                "rdf4j"
+            };
+            ans.add(record);
         }
+        
 
         try (CSVWriter writer = new CSVWriter(
             new FileWriter("/home/angel/shacl-validation-benchmark/results/rdf4j.csv"),

@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-shacl_validation = "0.1.7"
-srdf = "0.1.7"
+shacl_validation = { path = "../../shex-rs/shacl_validation" }
+srdf = { path = "../../shex-rs/srdf" }
 clap = { version = "4.2.1", features = ["derive"] }
 memory-stats = "1.2.0"
 csv = "1.3.0"
