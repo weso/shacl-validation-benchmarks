@@ -12,16 +12,16 @@ ub:FullProfessorShape
 			sh:maxCount 1;
 			sh:datatype xsd:string ;
 		]
-		[
-			sh:path 	ub:publicationAuthor  ;
-			sh:minCount 15;
-			sh:maxCount 20;
+		[ # Fails to conform...
+			sh:path 	ub:publicationAuthor  ; 
+			sh:minCount 0;
+			sh:maxCount 10;
 			sh:nodeKind sh:IRI ;
 		]
 		[
 			sh:path     ub:headOf ;
 			sh:minCount 0;
 			sh:maxCount 1;
-			sh:nodeKind sh:IRI ;
+			sh:nodeKind sh:BlankNode ;
 		]
 	) .
