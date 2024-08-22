@@ -75,7 +75,7 @@ fn main() -> Result<()> {
         for _ in 0..cli.iterations {
             let schema = schema.clone();
             let before = Instant::now();
-            let _ = validator.validate(schema);
+            let report = validator.validate(schema);
             times.push(before.elapsed().as_nanos() as f64);
         }
 
