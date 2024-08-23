@@ -1,43 +1,18 @@
-# -*- coding: utf-8 -*-
-from pyshacl import validate, monkey
-from rdflib import Graph
+from rudof import shacl
 import time
-from os import path
 import statistics
 import csv
 
-def load_graph(data):
-    monkey.apply_patches()
-    target_ttl_file = path.abspath(data)
-    target_graph = Graph()
-    with open(target_ttl_file, 'rb') as file:
-        target_graph.parse(file=file, format='turtle')
-    return target_graph
-    
 def main(data, shapes, iters):
     ans = []
 
     for file in data:
         times = []
 
-        validate(
-            g,
-            shacl_graph=s,
-            data_graph_format='turtle',
-            shacl_graph_format='turtle',
-            inference='none'
-        ) # avoid cold starts
+        shacl.validate( data, shapes ) # avoid cold starts
         for _ in range(iters):
             start = time.time_ns()
-            g  = load_graph(file)
-            s = load_graph(shapes)
-            validate(
-                g,
-                shacl_graph=s,
-                data_graph_format='turtle',
-                shacl_graph_format='turtle',
-                inference='none'
-            )
+            shacl.validate( data, shapes )
             end = time.time_ns()
             times.append(end - start)
         
@@ -45,7 +20,7 @@ def main(data, shapes, iters):
             statistics.mean(times),
             statistics.stdev(times),
             file.replace('../data/', '').replace('.ttl', '').upper(),
-            'pySHACL'
+            'pyrudof'
         ])
 
     with open('/home/angel/shacl-validation-benchmark/results/pyshacl.csv', 'w', newline='') as csvfile:

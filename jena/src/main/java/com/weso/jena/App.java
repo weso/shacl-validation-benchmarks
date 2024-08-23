@@ -41,8 +41,8 @@ public class App {
 			String[] record = { 
 				String.format("%f", times.stream().mapToDouble(d -> d).average().orElse(0.0)),
 				String.format("%f", calculateStandardDeviation(times)),
-				String.format("%d-lubm", university),
-				"jena"
+				String.format("%d-LUBM", university),
+				"Apache Jena"
 			};
 			ans.add(record);
 		}

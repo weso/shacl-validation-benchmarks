@@ -75,7 +75,7 @@ fn main() -> Result<()> {
         for _ in 0..cli.iterations {
             let schema = schema.clone();
             let before = Instant::now();
-            let report = validator.validate(schema);
+            let _ = validator.validate(schema);
             times.push(before.elapsed().as_nanos() as f64);
         }
 
@@ -88,7 +88,8 @@ fn main() -> Result<()> {
             data.to_str()
                 .unwrap()
                 .replace("../data/", "")
-                .replace(".ttl", ""),
+                .replace(".ttl", "")
+                .to_uppercase(),
             "shapes-rs".to_string(),
         ])
     }

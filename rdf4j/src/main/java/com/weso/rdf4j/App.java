@@ -18,10 +18,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class App {
-    // private static final int[] UNIVERSITIES = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
-    private static final int[] UNIVERSITIES = { 10, 20 };
-    private static final String SHACL = "/home/angel/shacl-validation-benchmark/data/conformant.ttl";
-	private static final int ITERS = 2;
+    private static final int[] UNIVERSITIES = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
+    private static final String SHACL = "/home/angel/shacl-validation-benchmark/data/non-conformant.ttl";
+	private static final int ITERS = 10;
 
     public static void main(String[] args) throws IOException {
         List<Double> times = new ArrayList<>();
@@ -55,7 +54,6 @@ public class App {
                     connection.add(new ArrayList<>(data));
                     start = System.nanoTime();
                     connection.commit();
-
                 } catch (RepositoryException exception) {
                     Throwable cause = exception.getCause();
                     if (cause instanceof ShaclSailValidationException) {
@@ -68,8 +66,8 @@ public class App {
             String[] record = { 
                 String.format("%f", times.stream().mapToDouble(d -> d).average().orElse(0.0)),
                 String.format("%f", calculateStandardDeviation(times)),
-                String.format("%d-lubm", university),
-                "rdf4j"
+                String.format("%d-LUBM", university),
+                "RDF4J"
             };
             ans.add(record);
         }

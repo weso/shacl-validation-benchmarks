@@ -49,8 +49,8 @@ public class App {
 			String[] record = { 
 				String.format("%f", times.stream().mapToDouble(d -> d).average().orElse(0.0)),
 				String.format("%f", calculateStandardDeviation(times)),
-				String.format("%d-lubm", university),
-				"topquadrant"
+				String.format("%d-LUBM", university),
+				"TopQuadrant"
 			};
 			ans.add(record);
 		}
