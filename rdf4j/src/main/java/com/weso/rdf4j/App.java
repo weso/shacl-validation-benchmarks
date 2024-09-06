@@ -2,13 +2,12 @@ package com.weso.rdf4j;
 
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.vocabulary.RDF4J;
-import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.eclipse.rdf4j.sail.shacl.ShaclSail;
-import org.eclipse.rdf4j.sail.shacl.ShaclSailValidationException;
+import org.eclipse.rdf4j.sail.shacl.ShaclValidator;
 
 import com.opencsv.CSVWriter;
 
@@ -25,42 +24,44 @@ public class App {
     public static void main(String[] args) throws IOException {
         List<Double> times = new ArrayList<>();
         List<String[]> ans = new ArrayList<>();
-        long start = 0;
+
+        Model shapesModel = RdfUtils.read(SHACL, null, RDFFormat.TURTLE);
+
+        ShaclSail shaclSail = new ShaclSail(new MemoryStore());
+        SailRepository shapes = new SailRepository(shaclSail);
+        shapes.init();
+
+        try (SailRepositoryConnection connection = shapes.getConnection()) {
+            // 2. Save SHACL
+            connection.begin();
+            connection.add(shapesModel, RDF4J.SHACL_SHAPE_GRAPH);
+            connection.commit();
+        }
 
         for (int university: UNIVERSITIES) {
             times = new ArrayList<>();
 
+            Model dataGraph = RdfUtils.read(
+                String.format("/home/angel/shacl-validation-benchmark/data/%d-lubm.ttl", university),
+                null,
+                RDFFormat.TURTLE
+            );
+
+            ShaclSail dataSail = new ShaclSail(new MemoryStore());
+            SailRepository data = new SailRepository(dataSail);
+            shapes.init();
+    
+            try (SailRepositoryConnection connection = data.getConnection()) {
+                connection.begin();
+                connection.add(new ArrayList<>(dataGraph));
+                connection.commit();
+            }
+
             for (int i = 0; i < ITERS; i++) {
-                Model shacl = RdfUtils.read(SHACL, null, RDFFormat.TURTLE);
-                Model data = RdfUtils.read(
-                    String.format("/home/angel/shacl-validation-benchmark/data/%d-lubm.ttl", university),
-                    null,
-                    RDFFormat.TURTLE
-                );
-
-                ShaclSail shaclSail = new ShaclSail(new MemoryStore());
-                shaclSail.setRdfsSubClassReasoning(true);
-                //shaclSail.setUndefinedTargetValidatesAllSubjects(true);
-                SailRepository sailRepository = new SailRepository(shaclSail);
-                sailRepository.init();
-                try (SailRepositoryConnection connection = sailRepository.getConnection()) {
-                    // 2. Save SHACL
-                    connection.begin();
-                    connection.add(shacl, RDF4J.SHACL_SHAPE_GRAPH);
-                    connection.commit();
-
-                    // 3. Validate data                 
-                    connection.begin();
-                    connection.add(new ArrayList<>(data));
-                    start = System.nanoTime();
-                    connection.commit();
-                } catch (RepositoryException exception) {
-                    Throwable cause = exception.getCause();
-                    if (cause instanceof ShaclSailValidationException) {
-                        Model validationReportModel = ((ShaclSailValidationException) cause).validationReportAsModel();
-                        times.add((double) (System.nanoTime() - start));
-                    }
-                }
+                long start = System.nanoTime();
+				ShaclValidator.validate(shapes.getSail(), data.getSail());
+				long finish = System.nanoTime();
+				times.add((double) (finish - start));
             }
 
             String[] record = { 

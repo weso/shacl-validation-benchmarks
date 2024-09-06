@@ -10,7 +10,7 @@ if [ -d "$PYRUDOF_DIR" ]  && [ -d "$PYSHACL_DIR" ] && [ -d "$RDF4J_DIR" ]; then
     cd "$PYRUDOF_DIR" || exit
 
     # Execute the run.sh script with the parameter
-    sh run.sh 10
+    sh run.sh 3
 
     # Return to the original directory
     cd .. || exit
@@ -19,16 +19,19 @@ if [ -d "$PYRUDOF_DIR" ]  && [ -d "$PYSHACL_DIR" ] && [ -d "$RDF4J_DIR" ]; then
     cd "$PYSHACL_DIR" || exit
 
     # Execute the run.sh script with the parameter
-    sh run.sh 10
+    sh run.sh 3
 
-    # Enter the rdf4j directory
-    cd "$RDF4J_DIR" || exit
-
-    # Execute the run.sh script with the parameter
-    sh run.sh
-
-    # Return to the original directory
+        # Return to the original directory
     cd .. || exit
+
+    # # Enter the rdf4j directory
+    # cd "$RDF4J_DIR" || exit
+
+    # # Execute the run.sh script with the parameter
+    # sh run.sh
+
+    # # Return to the original directory
+    # cd .. || exit
 else
     echo "Error: benchmark directories do not exist."
 fi

@@ -5,14 +5,12 @@ import csv
 
 def main(data, shapes, iters):
     ans = []
-
     for file in data:
         times = []
-
-        shacl.validate( data, shapes ) # avoid cold starts
+        shacl.validate( file, shapes ) # avoid cold starts
         for _ in range(iters):
             start = time.time_ns()
-            shacl.validate( data, shapes )
+            shacl.validate( file, shapes )
             end = time.time_ns()
             times.append(end - start)
         
@@ -23,7 +21,7 @@ def main(data, shapes, iters):
             'pyrudof'
         ])
 
-    with open('/home/angel/shacl-validation-benchmark/results/pyshacl.csv', 'w', newline='') as csvfile:
+    with open('/home/angel/shacl-validation-benchmark/results/pyrudof.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
         writer.writerows(ans)
 
