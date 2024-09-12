@@ -1,17 +1,27 @@
 #!/bin/bash
 
 SHAPES_RS_DIR="./shapes-rs" # Set the path to the shapes-rs directory
+RDF4J_DIR="./rdf4j" # Set the path to the rdf4j directory
 JENA_DIR="./jena" # Set the path to the jena directory
 TOPQUADRANT_DIR="./topquadrant" # Set the path to the top-quadrant directory
 
 
 # Check if the script and directory exist
-if [ -d "$SHAPES_RS_DIR" ] && [ -d "$JENA_DIR" ] && [ -d "$TOPQUADRANT_DIR" ]; then
+if [ -d "$SHAPES_RS_DIR" ] && [ -d "$RDF4J_DIR" ] && [ -d "$JENA_DIR" ] && [ -d "$TOPQUADRANT_DIR" ]; then
     # Enter the shapes-rs directory
     cd "$SHAPES_RS_DIR" || exit
 
     # Execute the run.sh script with the parameter
-    sh run.sh 10
+    sh run.sh 1
+
+    # Return to the original directory
+    cd .. || exit
+
+    # Enter the rdf4j directory
+    cd "$RDF4J_DIR" || exit
+
+    # Execute the run.sh script with the parameter
+    sh run.sh
 
     # Return to the original directory
     cd .. || exit

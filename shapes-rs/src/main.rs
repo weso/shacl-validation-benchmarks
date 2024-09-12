@@ -1,5 +1,6 @@
-use std::path::Path;
+use std::io::BufReader;
 use std::time::Instant;
+use std::{fs::File, path::Path};
 
 use clap::Parser;
 use csv::Writer;
@@ -49,13 +50,20 @@ struct Cli {
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    let shapes = Path::new(&cli.shapes);
-    let schema = match ShaclDataManager::load(shapes, RDFFormat::Turtle, None) {
+    let f = match File::open(&cli.shapes) {
+        Ok(f) => f,
+        Err(_) => todo!(),
+    };
+
+    let reader = BufReader::new(f);
+
+    let schema = match ShaclDataManager::load(reader, RDFFormat::Turtle, None) {
         Ok(schema) => schema,
         Err(_) => return Err("Error parsing the SHACL shapes"),
     };
 
     let mut ans = Vec::new();
+    let mut num_non_conformant_shapes = 0;
 
     for data in &cli.data {
         let mut times = Vec::new();
@@ -75,8 +83,13 @@ fn main() -> Result<()> {
         for _ in 0..cli.iterations {
             let schema = schema.clone();
             let before = Instant::now();
-            let _ = validator.validate(schema);
+            let report = validator.validate(schema);
             times.push(before.elapsed().as_nanos() as f64);
+
+            num_non_conformant_shapes = match report {
+                Ok(report) => report.results_size(),
+                Err(_) => todo!(),
+            };
         }
 
         let average = mean(&times);
@@ -90,12 +103,14 @@ fn main() -> Result<()> {
                 .replace("../data/", "")
                 .replace(".ttl", "")
                 .to_uppercase(),
-            "shapes-rs".to_string(),
+            // (num_non_conformant_shapes == 0).to_string(),
+            // num_non_conformant_shapes.to_string(),
+            "rudof".to_string(),
         ])
     }
 
     let writer_result =
-        Writer::from_path("/home/angel/shacl-validation-benchmark/results/shapesrs.csv");
+        Writer::from_path("/home/angel/shacl-validation-benchmark/results/rudof.csv");
     let mut writer = match writer_result {
         Ok(writer) => writer,
         Err(_) => return Err("Error creating the Writer"),

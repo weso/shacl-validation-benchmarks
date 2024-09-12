@@ -6,7 +6,7 @@ prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#>
 ub:FullProfessorShape
 	a sh:NodeShape ;
 	sh:targetClass ub:FullProfessor ;
-	sh:and (
+	sh:or (
 		[
 			sh:path     ub:name ;
 			sh:minCount 1;

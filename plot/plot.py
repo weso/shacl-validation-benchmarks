@@ -48,7 +48,7 @@ def plot(df, colors, output):
 
 
 if __name__ == '__main__':
-    SHACL = 'non-conformant'
+    SHACL = 'conformant'
 
     colors = {
         'rudof': 'purple',
@@ -59,36 +59,38 @@ if __name__ == '__main__':
         'pySHACL': 'red'
     }
 
+    names = ['mean', 'error', 'label', 'software']
+
     jena = pd.read_csv(
         f'/home/angel/shacl-validation-benchmark/results/{SHACL}/jena.csv',
         header=None,
-        names=['mean', 'error', 'label', 'software']
+        names=names
     )
     shapesrs = pd.read_csv(
-        f'/home/angel/shacl-validation-benchmark/results/{SHACL}/shapesrs.csv',
+        f'/home/angel/shacl-validation-benchmark/results/{SHACL}/rudof.csv',
         header=None, 
-        names=['mean', 'error', 'label', 'software']
+        names=names
     )
     topquadrant = pd.read_csv(
         f'/home/angel/shacl-validation-benchmark/results/{SHACL}/topquadrant.csv',
         header=None,
-        names=['mean', 'error', 'label', 'software']
+        names=names
     )
     rdf4j = pd.read_csv(
         f'/home/angel/shacl-validation-benchmark/results/{SHACL}/rdf4j.csv',
         header=None,
-        names=['mean', 'error', 'label', 'software']
+        names=names
     )
 
     pyshacl = pd.read_csv(
         f'/home/angel/shacl-validation-benchmark/results/{SHACL}/pyshacl.csv',
         header=None,
-        names=['mean', 'error', 'label', 'software']
+        names=names
     )
     pyrudof = pd.read_csv(
         f'/home/angel/shacl-validation-benchmark/results/{SHACL}/pyrudof.csv',
         header=None,
-        names=['mean', 'error', 'label', 'software']
+        names=names
     )
 
     df1 = pd.concat([shapesrs, jena, topquadrant, rdf4j])

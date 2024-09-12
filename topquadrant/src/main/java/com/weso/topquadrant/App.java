@@ -8,20 +8,24 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.util.FileUtils;
 import org.topbraid.jenax.util.JenaUtil;
+import org.topbraid.shacl.util.ModelPrinter;
 import org.topbraid.shacl.validation.ValidationUtil;
 
 import com.opencsv.CSVWriter;
 
 public class App {
-	private static final int[] UNIVERSITIES = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
+    // private static final int[] UNIVERSITIES = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
+    private static final int[] UNIVERSITIES = { 10 };
 	private static final String SHACL = "/home/angel/shacl-validation-benchmark/data/non-conformant.ttl";
-	private static final int ITERS = 10;
+	private static final int ITERS = 1;
 
     public static void main( String[] args ) throws IOException {
 		List<Double> times = new ArrayList<>();
         List<String[]> ans = new ArrayList<>();
+		Resource report = null;
 
 		// Load the shapes data model
 		Model shapes = JenaUtil.createMemoryModel();
@@ -41,7 +45,7 @@ public class App {
 			ValidationUtil.validateModel(graph, shapes, true); // avoid cold starts
 			for (int i = 0; i < ITERS; i++) {
 				long start = System.nanoTime();
-				ValidationUtil.validateModel(graph, shapes, true);
+				report = ValidationUtil.validateModel(graph, shapes, true);
 				long finish = System.nanoTime();
 				times.add((double) (finish - start));
 			}
@@ -50,6 +54,8 @@ public class App {
 				String.format("%f", times.stream().mapToDouble(d -> d).average().orElse(0.0)),
 				String.format("%f", calculateStandardDeviation(times)),
 				String.format("%d-LUBM", university),
+				String.format("%b", report.getModel().listStatements().toList().size() == 0),
+                String.format("%d", report.getModel().listStatements().toList().size()),
 				"TopQuadrant"
 			};
 			ans.add(record);
