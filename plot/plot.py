@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-def plot(df, colors, output):
+def plot(df, colors, ymax, output):
     df['label'] = pd.Categorical(
         df['label'],
         categories=sorted(df['label'].unique(), key=lambda x: int(x.split('-')[0])), 
@@ -36,6 +36,7 @@ def plot(df, colors, output):
 
     ax.set_xlabel('Dataset', fontsize=14)
     ax.set_ylabel('Execution time (s)', fontsize=14)
+    ax.set_ylim([0, ymax])
     ax.set_xticks(x + width * (len(df['software'].unique()) - 1) / 2)
     ax.set_xticklabels(labels, fontsize=12)
     ax.legend(title="Software", fontsize=12, title_fontsize=14)
@@ -48,6 +49,7 @@ def plot(df, colors, output):
 
 
 if __name__ == '__main__':
+    # SHACL = 'non-conformant'
     SHACL = 'conformant'
 
     colors = {
@@ -81,9 +83,14 @@ if __name__ == '__main__':
         header=None,
         names=names
     )
-
     pyshacl = pd.read_csv(
         f'/home/angel/shacl-validation-benchmark/results/{SHACL}/pyshacl.csv',
+        header=None,
+        names=names
+    )
+
+    pyshacl_full = pd.read_csv(
+        f'/home/angel/shacl-validation-benchmark/results/{SHACL}/pyshacl-full.csv',
         header=None,
         names=names
     )
@@ -93,8 +100,8 @@ if __name__ == '__main__':
         names=names
     )
 
-    df1 = pd.concat([shapesrs, jena, topquadrant, rdf4j])
-    df2 = pd.concat([pyshacl, pyrudof])
+    df1 = pd.concat([shapesrs, jena, topquadrant, rdf4j, pyshacl])
+    df2 = pd.concat([pyshacl_full, pyrudof])
 
-    plot(df1, colors, SHACL)
-    plot(df2, colors, f'py-{SHACL}')
+    plot(df1, colors,  70, SHACL)
+    plot(df2, colors, 9000, f'py-{SHACL}')

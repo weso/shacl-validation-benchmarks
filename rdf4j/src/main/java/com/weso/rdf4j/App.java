@@ -7,8 +7,12 @@ import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.repository.sail.SailRepositoryConnection;
 import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.WriterConfig;
+import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.eclipse.rdf4j.sail.shacl.ShaclSail;
+import org.eclipse.rdf4j.sail.shacl.results.ValidationReport;
 
 import com.opencsv.CSVWriter;
 
@@ -21,9 +25,10 @@ import java.io.InputStream;
 import java.io.BufferedInputStream;
 
 public class App {
-    private static final int[] UNIVERSITIES = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
-    private static final String SHACL = "/home/angel/shacl-validation-benchmark/data/conformant.ttl";
-	private static final int ITERS = 10;
+    // private static final int[] UNIVERSITIES = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
+    private static final int[] UNIVERSITIES = { 10 };
+    private static final String SHACL = "/home/angel/shacl-validation-benchmark/data/non-conformant.ttl";
+	private static final int ITERS = 1;
 
     public static void main(String[] args) throws IOException {
         List<Double> times = new ArrayList<>();
@@ -56,6 +61,13 @@ public class App {
                     } catch (RepositoryException e){
                         if(e.getCause() instanceof ValidationException){
                             report = ((ValidationException) e.getCause()).validationReportAsModel();
+
+                            WriterConfig writerConfig = new WriterConfig()
+                                .set(BasicWriterSettings.INLINE_BLANK_NODES, true)
+                                .set(BasicWriterSettings.XSD_STRING_TO_PLAIN_LITERAL, true)
+                                .set(BasicWriterSettings.PRETTY_PRINT, true);
+
+                            Rio.write(report, System.out, RDFFormat.TURTLE, writerConfig);
                         }
                     } finally {
                         long finish = System.nanoTime();

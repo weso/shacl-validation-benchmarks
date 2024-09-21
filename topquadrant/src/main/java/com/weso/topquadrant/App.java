@@ -19,7 +19,7 @@ import com.opencsv.CSVWriter;
 public class App {
     // private static final int[] UNIVERSITIES = { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 };
     private static final int[] UNIVERSITIES = { 10 };
-	private static final String SHACL = "/home/angel/shacl-validation-benchmark/data/non-conformant.ttl";
+	private static final String SHACL = "/home/angel/shacl-validation-benchmark/data/conformant.ttl";
 	private static final int ITERS = 1;
 
     public static void main( String[] args ) throws IOException {
@@ -48,6 +48,8 @@ public class App {
 				report = ValidationUtil.validateModel(graph, shapes, true);
 				long finish = System.nanoTime();
 				times.add((double) (finish - start));
+
+				System.out.println(ModelPrinter.get().print(report.getModel()));
 			}
 
 			String[] record = { 

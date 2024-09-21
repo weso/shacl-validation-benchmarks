@@ -16,12 +16,14 @@ def load_graph(data):
     
 def main(data, shapes, iters):
     ans = []
+    s = load_graph(shapes)
+
     for file in data:
         times = []
+        g  = load_graph(file)
+
         for _ in range(iters):
             start = time.time_ns()
-            g  = load_graph(file)
-            s = load_graph(shapes)
             validate(
                 g,
                 shacl_graph=s,
