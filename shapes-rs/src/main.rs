@@ -4,17 +4,12 @@ use std::{fs::File, path::Path};
 
 use clap::Parser;
 use csv::Writer;
-use shacl_validation::{
-    store::ShaclDataManager,
-    validate::{GraphValidator, ShaclValidationMode, Validator},
-};
+use shacl_validation::shacl_processor::{GraphValidation, ShaclProcessor, ShaclValidationMode};
+use shacl_validation::store::ShaclDataManager;
 use srdf::RDFFormat;
 use statistical::{mean, standard_deviation};
 
 type Result<T> = std::result::Result<T, &'static str>;
-
-#[global_allocator]
-static GLOBAL: jemallocator::Jemalloc = jemallocator::Jemalloc;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -69,25 +64,27 @@ fn main() -> Result<()> {
         let mut times = Vec::new();
         let data = Path::new(data);
 
-        let validator = match GraphValidator::new(
+        let validator = match GraphValidation::new(
             data,
             RDFFormat::Turtle,
             None,
-            ShaclValidationMode::Default,
+            ShaclValidationMode::Native,
         ) {
             Ok(validator) => validator,
-            Err(_) => return Err("Error creating the Validator"),
+            Err(error) => {
+                eprintln!("{}", error);
+                return Err("Error creating the Validator, {}");
+            }
         };
 
-        let _ = validator.validate(schema.clone()); // avoid cold starts
+        let _ = validator.validate(&schema); // avoid cold starts
         for _ in 0..cli.iterations {
-            let schema = schema.clone();
             let before = Instant::now();
-            let report = validator.validate(schema);
+            let report = validator.validate(&schema);
             times.push(before.elapsed().as_nanos() as f64);
 
             num_non_conformant_shapes = match report {
-                Ok(report) => report.results_size(),
+                Ok(report) => report.results().len(),
                 Err(_) => todo!(),
             };
         }
@@ -109,8 +106,7 @@ fn main() -> Result<()> {
         ])
     }
 
-    let writer_result =
-        Writer::from_path("/home/angel/shacl-validation-benchmark/results/rudof.csv");
+    let writer_result = Writer::from_path("../results/rudof-dev.csv");
     let mut writer = match writer_result {
         Ok(writer) => writer,
         Err(_) => return Err("Error creating the Writer"),
